@@ -27,6 +27,9 @@ api_key = os.getenv(
     "OPENAI_API_KEY"
 )
 
+VECTOR_STORE_ID = os.getenv(
+    "VECTOR_STORE_ID"
+)
 
 if not api_key:
 
@@ -41,24 +44,113 @@ client = OpenAI(
 
 def validate_ai_assessment(
     result: str
-) -> int:
+) -> dict:
 
-    result = result.strip()
+    try:
 
-    if result not in {
-        "1",
-        "2",
-        "3",
-        "4",
-        "5"
+        assessment = json.loads(
+            result
+        )
+
+    except json.JSONDecodeError as error:
+
+        raise ValueError(
+
+            "Invalid AI assessment JSON: "
+            f"{result}"
+
+        ) from error
+
+
+    if not isinstance(
+        assessment,
+        dict
+    ):
+
+        raise ValueError(
+            "AI assessment must be "
+            "a JSON object."
+        )
+
+
+    if "severity" not in assessment:
+
+        raise ValueError(
+            "AI assessment is missing "
+            "'severity'."
+        )
+
+
+    if "reason" not in assessment:
+
+        raise ValueError(
+            "AI assessment is missing "
+            "'reason'."
+        )
+
+
+    severity = assessment[
+        "severity"
+    ]
+
+
+    reason = assessment[
+        "reason"
+    ]
+
+
+    if (
+        not isinstance(
+            severity,
+            int
+        )
+
+        or isinstance(
+            severity,
+            bool
+        )
+    ):
+
+        raise ValueError(
+            "'severity' must be an integer."
+        )
+
+
+    if severity not in {
+        1,
+        2,
+        3,
+        4,
+        5
     }:
 
         raise ValueError(
-            "Invalid AI assessment output: "
-            f"{result}"
+            "'severity' must be "
+            "between 1 and 5."
         )
 
-    return int(result)
+
+    if (
+        not isinstance(
+            reason,
+            str
+        )
+
+        or not reason.strip()
+    ):
+
+        raise ValueError(
+            "'reason' must be "
+            "a non-empty string."
+        )
+
+
+    return {
+
+        "severity": severity,
+
+        "reason": reason.strip()
+    }
 
 def build_explanation_context(
 
@@ -242,7 +334,7 @@ def generate_ai_assessment(
 
     patient: PatientData
 
-) -> int:
+) -> dict:
 
     context = (
         build_ai_assessment_context(
@@ -250,16 +342,17 @@ def generate_ai_assessment(
         )
     )
 
-
     response = client.responses.create(
-
         model=MODEL_NAME,
-
         instructions=MODEL_PROMPT,
+        input=json.dumps(context),
 
-        input=json.dumps(
-            context
-        )
+        tools=[
+            {
+                "type": "file_search",
+                "vector_store_ids": [VECTOR_STORE_ID],
+            }
+        ],
     )
 
 

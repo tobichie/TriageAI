@@ -34,7 +34,7 @@ class Symptom(BaseModel):
 
     name: str
 
-    severity: Optional[str] = None
+    severity: Optional[int] = None
 
     duration_minutes: Optional[int] = Field(
         default=None,

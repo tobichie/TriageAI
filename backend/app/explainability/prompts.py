@@ -158,13 +158,25 @@ Based only on the provided:
 provide an independent prototype assessment using
 the five-level Manchester-style triage scale.
 
-Return only a single number from 1 to 5.
+Severity must be a number from 1 to 5.
 
 1 is the most urgent level.
 
 5 is the least urgent level.
 
-Do not provide an explanation.
+Also provide a short reason based only on the
+provided patient data.
 
-Do not output any other text.
+Return ONLY valid JSON in exactly this format:
+
+{
+    "severity": 1,
+    "reason": "Short explanation based on the provided data."
+}
+
+Do not include markdown.
+
+Do not include ```json.
+
+Do not include any text outside the JSON object.
 """

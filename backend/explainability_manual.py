@@ -19,8 +19,8 @@ patient = PatientData(
     symptoms=[
         Symptom(
             name="heart attack",
-            severity="high",
-            duration_minutes=80
+            duration_minutes=80,
+            severity=3
         )
     ],
 
