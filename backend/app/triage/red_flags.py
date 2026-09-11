@@ -1,5 +1,7 @@
 from app.models.patient import PatientData
-
+from app.triage.normalization import (
+    normalize_text
+)
 from app.models.triage_result import (
     RuleCategory,
     RuleFinding
@@ -18,17 +20,18 @@ def evaluate_red_flags(
 
     for symptom in patient.symptoms:
 
-        symptom_name = (
+        symptom_name = normalize_text(
             symptom.name
-            .strip()
-            .lower()
         )
 
         severity = (
-            symptom.severity
-            .strip()
-            .lower()
+
+            normalize_text(
+                symptom.severity
+            )
+
             if symptom.severity
+
             else None
         )
 

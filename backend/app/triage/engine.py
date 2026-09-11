@@ -1,5 +1,9 @@
+from app.safety.evaluator import evaluate_safety
 from app.models.patient import PatientData
-
+from app.protocols.prototype_v1 import (
+    PROTOCOL_NAME,
+    PROTOCOL_VERSION
+)
 from app.models.triage_result import (
     RuleCategory,
     RuleFinding,
@@ -99,7 +103,9 @@ def evaluate_patient(
             patient
         )
     )
-
+    safety_result = evaluate_safety(
+        missing_information
+    )
 
     triggered_rules = [
 
@@ -125,7 +131,6 @@ def evaluate_patient(
         if finding.category == RuleCategory.RED_FLAG
     ]
 
-
     return TriageResult(
 
         suggested_group=suggested_group,
@@ -144,6 +149,8 @@ def evaluate_patient(
             group_info.reevaluation_minutes
         ),
 
+        rule_findings=findings,
+
         triggered_rules=triggered_rules,
 
         red_flags=red_flags,
@@ -154,5 +161,23 @@ def evaluate_patient(
             missing_information
         ),
 
-        requires_human_review=True
+        assessment_status=(
+            safety_result.assessment_status
+        ),
+
+        safety_warnings=(
+            safety_result.warnings
+        ),
+
+        protocol_name=(
+            PROTOCOL_NAME
+        ),
+
+        protocol_version=(
+            PROTOCOL_VERSION
+        ),
+
+        requires_human_review=(
+            safety_result.requires_human_review
+        )
     )
