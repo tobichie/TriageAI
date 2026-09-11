@@ -49,7 +49,7 @@ TRIAGE_GROUPS = {
 
         TriageGroupInfo(
             group=TriageGroup.VERY_URGENT,
-            treatment_priority="Sehr dringend",
+            treatment_priority="Very Urgent",
             color="orange",
             max_wait_minutes=10,
             reevaluation_minutes=10
@@ -60,7 +60,7 @@ TRIAGE_GROUPS = {
 
         TriageGroupInfo(
             group=TriageGroup.URGENT,
-            treatment_priority="Dringend",
+            treatment_priority="Urgent",
             color="yellow",
             max_wait_minutes=30,
             reevaluation_minutes=30
@@ -82,7 +82,7 @@ TRIAGE_GROUPS = {
 
         TriageGroupInfo(
             group=TriageGroup.NOT_URGENT,
-            treatment_priority="Nicht dringend",
+            treatment_priority="Not Urgent",
             color="blue",
             max_wait_minutes=120,
             reevaluation_minutes=120

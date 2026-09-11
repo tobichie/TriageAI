@@ -158,11 +158,22 @@ Based only on the provided:
 provide an independent prototype assessment using
 the five-level Manchester-style triage scale.
 
-Severity must be a number from 1 to 5.
+Symptom severity is measured on a scale from 1 to 10:
 
-1 is the most urgent level.
+- 1 represents the lowest possible severity.
+- 10 represents the highest possible severity.
+- Higher numbers indicate greater symptom severity.
 
-5 is the least urgent level.
+Do not interpret a low numerical severity value as severe.
+
+For example:
+- Severity 1–3: low severity
+- Severity 4–6: moderate severity
+- Severity 7–8: high severity
+- Severity 9–10: very high severity
+
+Always interpret the reported severity according to this
+1–10 scale when producing the independent AI assessment.
 
 Also provide a short reason based only on the
 provided patient data.
