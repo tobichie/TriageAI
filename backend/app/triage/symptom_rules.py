@@ -1,3 +1,5 @@
+import re
+
 from app.models.patient import PatientData
 
 from app.models.triage_result import (
@@ -32,6 +34,54 @@ def resolve_symptom_name(
         )
     )
 
+def extract_symptom_names(
+    symptom_text: str
+) -> list[str]:
+
+    normalized_text = (
+        normalize_text(
+            symptom_text
+        )
+    )
+
+
+    matches = []
+
+
+    sorted_aliases = sorted(
+
+        SYMPTOM_ALIASES.items(),
+
+        key=lambda item: len(
+            item[0]
+        ),
+
+        reverse=True
+    )
+
+
+    for alias, canonical_name in sorted_aliases:
+
+        if re.search(
+
+                rf"(?<!\w){re.escape(alias)}(?!\w)",
+
+                normalized_text
+
+        ):
+
+            if (
+                canonical_name
+                not in matches
+            ):
+
+                matches.append(
+                    canonical_name
+                )
+
+
+    return matches
+
 def evaluate_symptoms(
     patient: PatientData
 ) -> list[RuleFinding]:
@@ -41,40 +91,59 @@ def evaluate_symptoms(
 
     for symptom in patient.symptoms:
 
-        normalized_name = (
-            normalize_text(
+        symptom_names = (
+            extract_symptom_names(
                 symptom.name
             )
         )
 
 
-        symptom_name = (
-            resolve_symptom_name(
-                normalized_name
+        if not symptom_names:
+
+            normalized_name = (
+                normalize_text(
+                    symptom.name
+                )
             )
-        )
 
-        evaluate_critical_symptom(
-            symptom_name,
-            findings
-        )
 
-        evaluate_very_urgent_symptom(
-            symptom_name,
-            findings
-        )
+            symptom_names = [
 
-        evaluate_urgent_symptom(
-            symptom_name,
-            findings
-        )
+                resolve_symptom_name(
+                    normalized_name
+                )
 
-        evaluate_structured_symptom(
-            symptom,
-            symptom_name,
-            findings
-        )
+            ]
 
+
+        for symptom_name in symptom_names:
+
+            evaluate_critical_symptom(
+                symptom_name,
+                findings
+            )
+
+
+            evaluate_very_urgent_symptom(
+                symptom_name,
+                findings
+            )
+
+
+            evaluate_urgent_symptom(
+                symptom_name,
+                findings
+            )
+
+
+            evaluate_structured_symptom(
+
+                symptom,
+
+                symptom_name,
+
+                findings
+            )
 
 
     return findings
