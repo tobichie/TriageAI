@@ -129,6 +129,55 @@ def evaluate_very_urgent_symptom(
         )
     )
 
+def evaluate_fixed_priority_symptom(
+
+    symptom_name: str,
+
+    rule: dict,
+
+    findings: list[RuleFinding]
+
+) -> None:
+
+    if (
+        "suggested_group"
+        not in rule
+    ):
+
+        return
+
+
+    findings.append(
+
+        RuleFinding(
+
+            rule_id=(
+                rule[
+                    "rule_id"
+                ]
+            ),
+
+            category=(
+                RuleCategory.SYMPTOM
+            ),
+
+            description=(
+                rule[
+                    "description"
+                ]
+            ),
+
+            observed_value=(
+                symptom_name
+            ),
+
+            suggested_group=(
+                rule[
+                    "suggested_group"
+                ]
+            )
+        )
+    )
 
 def evaluate_structured_symptom(
 
@@ -152,6 +201,15 @@ def evaluate_structured_symptom(
         SYMPTOM_RULES[
             symptom_name
         ]
+    )
+
+    evaluate_fixed_priority_symptom(
+
+        symptom_name,
+
+        rule,
+
+        findings
     )
 
 

@@ -7,7 +7,7 @@ These rules are prototype software-development
 rules and are NOT a validated clinical triage
 protocol.
 """
-
+from app.triage.priorities import TriageGroup
 
 CRITICAL_SYMPTOMS = {
 
@@ -90,6 +90,10 @@ URGENT_SYMPTOMS = {
 
 SYMPTOM_RULES = {
 
+    # ----------------------------------------
+    # Severity and duration based symptoms
+    # ----------------------------------------
+
     "chest_pain": {
 
         "severity": {
@@ -101,7 +105,6 @@ SYMPTOM_RULES = {
             "normal_min": 1
 
         },
-
 
         "duration": {
 
@@ -155,6 +158,42 @@ SYMPTOM_RULES = {
             "normal_min": 1
 
         }
+
+    },
+
+
+    "palpitations": {
+
+        "severity": {
+
+            "very_urgent_min": 8,
+
+            "urgent_min": 5,
+
+            "normal_min": 1
+
+        }
+
+    },
+
+
+    # ----------------------------------------
+    # Fixed-priority reported red flags
+    # ----------------------------------------
+
+    "reported_cardiac_emergency": {
+
+        "rule_id":
+            "SYMPTOM_REPORTED_CARDIAC_EMERGENCY",
+
+        "description": (
+            "Patient-reported symptoms suggest "
+            "a possible cardiac emergency and "
+            "require urgent clinical assessment."
+        ),
+
+        "suggested_group":
+            TriageGroup.VERY_URGENT
 
     }
 
@@ -279,4 +318,35 @@ SYMPTOM_ALIASES = {
         "severe_breathing_difficulty"
     ),
 
+    # Palpitations
+
+    "palpitations":
+        "palpitations",
+
+    "heart palpitations":
+        "palpitations",
+
+    "racing heart":
+        "palpitations",
+
+    "fluttering heart":
+        "palpitations",
+
+    "heart fluttering":
+        "palpitations",
+
+
+    # Patient-reported possible cardiac emergency
+
+    "heart attack":
+        "reported_cardiac_emergency",
+
+    "having a heart attack":
+        "reported_cardiac_emergency",
+
+    "possible heart attack":
+        "reported_cardiac_emergency",
+
+    "think i am having a heart attack":
+        "reported_cardiac_emergency",
 }
