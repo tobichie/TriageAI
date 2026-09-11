@@ -5,6 +5,81 @@ import {
 } from "react";
 
 
+function parseSymptoms(
+    symptoms
+) {
+
+    return symptoms.flatMap(
+
+        (symptom) => {
+
+            const symptomNames = (
+
+                symptom.name
+
+                    .split(",")
+
+                    .map(
+
+                        (name) =>
+
+                            name.trim()
+
+                    )
+
+                    .filter(
+
+                        (name) =>
+
+                            name.length > 0
+
+                    )
+
+            );
+
+
+            return symptomNames.map(
+
+                (name) => (
+
+                    {
+
+                        name: name,
+
+
+                        severity:
+
+                            symptom.severity === ""
+
+                                ? null
+
+                                : Number(
+                                    symptom.severity
+                                ),
+
+
+                        duration_minutes:
+
+                            symptom.duration_minutes === ""
+
+                                ? null
+
+                                : Number(
+                                    symptom.duration_minutes
+                                )
+
+                    }
+
+                )
+
+            );
+
+        }
+
+    );
+
+}
+
 function PatientForm(
     {
         onSubmit
@@ -180,9 +255,9 @@ function PatientForm(
 
             symptoms:
 
-                symptoms
+                parseSymptoms(
 
-                    .filter(
+                    symptoms.filter(
 
                         (
                             symptom
@@ -192,46 +267,7 @@ function PatientForm(
 
                     )
 
-                    .map(
-
-                        (
-                            symptom
-                        ) => (
-
-                            {
-
-                                name:
-
-                                    symptom.name,
-
-
-                                severity:
-
-                                    symptom.severity === ""
-
-                                        ? null
-
-                                        : Number(
-                                            symptom.severity
-                                        ),
-
-
-                                duration_minutes:
-
-                                    symptom.duration_minutes === ""
-
-                                        ? null
-
-                                        : Number(
-                                            symptom.duration_minutes
-                                        )
-
-                            }
-
-                        )
-
-                    ),
-
+                ),
 
             vital_signs: {
 

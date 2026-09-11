@@ -1573,6 +1573,26 @@ The goal is to build a stronger deterministic engine over time.
 
 ---
 
+# Demo
+
+Assessment with moderately severe chest pain
+![triageai_demo.png](demo/triageai_demo.png)
+Assessment with moderately severe chest pain and shortness of breath
+![triageai_demo2.png](demo/triageai_demo2.png)
+AI Explanation for the previous assessment
+![triageai_demo3.png](demo/triageai_demo3.png)
+Assessment with clinical context for the AI Assessment
+![triageai_demo4.png](demo/triageai_demo4.png)
+Assessment with 3 different Explicit Symptoms and high heart rate
+![triageai_demo5.png](demo/triageai_demo5.png)
+Assessment with 3 different Explicit Symptoms and high heart rate and clinical context for the AI Assessment
+![triageai_demo6.png](demo/triageai_demo6.png)
+
+
+
+
+---
+
 # 🏁 Final Disclaimer
 
 TriageAI is an experimental hackathon prototype.
