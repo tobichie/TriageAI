@@ -137,13 +137,13 @@ cd TriageAI
 
 ## 2. Create the Environment File
 
-Create a `.env` file inside the `backend` directory:
+Create a `.env` file inside the `TriageAI` directory:
 
 ```text
 TriageAI/
+├── .env
 │
 ├── backend/
-│   ├── .env
 │   ├── Dockerfile
 │   └── ...
 │
