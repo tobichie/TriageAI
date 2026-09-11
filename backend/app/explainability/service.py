@@ -336,32 +336,73 @@ def generate_ai_assessment(
 
 ) -> dict:
 
+
     context = (
+
         build_ai_assessment_context(
             patient
         )
+
     )
 
-    response = client.responses.create(
-        model=MODEL_NAME,
-        instructions=MODEL_PROMPT,
-        input=json.dumps(context),
 
-        tools=[
+    request_arguments = {
+
+        "model": MODEL_NAME,
+
+        "instructions": MODEL_PROMPT,
+
+        "input": json.dumps(
+            context
+        )
+
+    }
+
+
+    if VECTOR_STORE_ID:
+
+        request_arguments[
+            "tools"
+        ] = [
+
             {
+
                 "type": "file_search",
-                "vector_store_ids": [VECTOR_STORE_ID],
+
+                "vector_store_ids": [
+                    str(
+                        VECTOR_STORE_ID
+                    )
+                ]
+
             }
-        ],
+
+        ]
+
+
+    response = (
+
+        client.responses.create(
+
+            **request_arguments
+
+        )
+
     )
 
 
     result = (
+
         response.output_text
         .strip()
+
     )
 
 
-    return validate_ai_assessment(
-        result
+    return (
+
+        validate_ai_assessment(
+            result
+        )
+
     )
