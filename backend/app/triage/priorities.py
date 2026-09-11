@@ -38,7 +38,7 @@ TRIAGE_GROUPS = {
 
         TriageGroupInfo(
             group=TriageGroup.IMMEDIATE,
-            treatment_priority="Sofort",
+            treatment_priority="Immediate",
             color="red",
             max_wait_minutes=0,
             reevaluation_minutes=None

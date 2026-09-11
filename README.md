@@ -1587,8 +1587,8 @@ Assessment with 3 different Explicit Symptoms and high heart rate
 ![triageai_demo5.png](demo/triageai_demo5.png)
 Assessment with 3 different Explicit Symptoms and high heart rate and clinical context for the AI Assessment
 ![triageai_demo6.png](demo/triageai_demo6.png)
-
-
+Matching AI and Engine Assessments 
+![triageai_demo7.png](demo/triageai_demo7.png)
 
 
 ---
