@@ -129,7 +129,7 @@ Make sure Docker Desktop is installed and running.
 ## 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/tobichie/TriageAI.git
 cd TriageAI
 ```
 
