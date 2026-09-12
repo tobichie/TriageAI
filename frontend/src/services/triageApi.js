@@ -1,5 +1,5 @@
 const API_URL =
-    "http://127.0.0.1:8000";
+    "http://192.168.178.123:8000"; // This needs to be changed to whatever ip you can reach your device under
 
 
 export async function assessPatient(

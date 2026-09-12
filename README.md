@@ -230,6 +230,9 @@ To stop the application:
 ```bash
 docker compose down
 ```
+### Connecting from outside of localhost
+
+Because the data is being sent to the API at a set address (localhost:8000) you need to change the IP in the VITE_API_URL located in frontend/.env.production in order to connect from another device/IP.
 
 ---
 
@@ -269,6 +272,8 @@ or:
 ```bash
 docker compose logs -f frontend
 ```
+
+
 
 # 🏗️ Architecture
 
