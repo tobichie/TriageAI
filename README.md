@@ -1581,18 +1581,43 @@ The goal is to build a stronger deterministic engine over time.
 # Demo
 
 Assessment with moderately severe chest pain
+<br>
 ![triageai_demo.png](demo/triageai_demo.png)
+
+---
+
 Assessment with moderately severe chest pain and shortness of breath
+<br>
 ![triageai_demo2.png](demo/triageai_demo2.png)
+
+---
+
 AI Explanation for the previous assessment
+<br>
 ![triageai_demo3.png](demo/triageai_demo3.png)
+
+---
+
 Assessment with clinical context for the AI Assessment
+<br>
 ![triageai_demo4.png](demo/triageai_demo4.png)
+
+---
+
 Assessment with 3 different Explicit Symptoms and high heart rate
+<br>
 ![triageai_demo5.png](demo/triageai_demo5.png)
+
+---
+
 Assessment with 3 different Explicit Symptoms and high heart rate and clinical context for the AI Assessment
+<br>
 ![triageai_demo6.png](demo/triageai_demo6.png)
+
+---
+
 Matching AI and Engine Assessments 
+<br>
 ![triageai_demo7.png](demo/triageai_demo7.png)
 
 
