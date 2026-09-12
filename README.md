@@ -109,6 +109,11 @@ The AI is not intended to replace that work.
 - Modern card-based interface
 - Expandable information sections
 
+## 🗒️ Note 
+
+Where supported by the configured AI provider, repeated structured requests may benefit from prompt caching, reducing repeated processing and potentially improving response latency.
+![cache_hits.png](demo/cache_hits.png)
+
 ---
 
 # 🚀 Quick Start
