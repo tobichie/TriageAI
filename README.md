@@ -114,6 +114,29 @@ The AI is not intended to replace that work.
 Where supported by the configured AI provider, repeated structured requests may benefit from prompt caching, reducing repeated processing and potentially improving response latency.
 ![cache_hits.png](demo/cache_hits.png)
 
+## Performance Improvement
+
+The frontend currently waits for both the **AI Assessment** and the **Engine Assessment** to complete before displaying any results. This unnecessarily increases the perceived duration of the triage process.
+
+This can (I'm not doing it) be changed so that the **Engine Assessment is displayed immediately once it is available**, while the AI Assessment continues processing in the background.
+
+---
+
+## Known Vulnerabilities
+
+### Prompt Engineering
+
+The prompts defined in `backend/app/explainability/prompts.py` are currently not hardened against prompt injection or other prompt-engineering techniques.
+
+This could potentially allow users to manipulate the model into generating responses unrelated to the intended triage process. Prompt hardening, stricter input handling, and clear model instructions should be implemented to reduce this risk.
+
+### Clinical Context Overload
+
+The **Clinical Context** field currently accepts an unrestricted number of characters. This allows users to submit excessively large amounts of text, which can unnecessarily increase token consumption and processing time.
+
+A maximum input length should be introduced to prevent excessive token usage and ensure consistent performance. Additional validation or truncation mechanisms may also be considered.
+
+
 ---
 
 # 🚀 Quick Start
