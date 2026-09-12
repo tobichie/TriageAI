@@ -78,7 +78,10 @@ The AI is not intended to replace that work.
 
 ## Backend
 
-- FastAPI REST API
+- FastAPI REST API(
+- SwaggerUI at http://localhost:8000/docs
+- ReDoc at http://localhost:8000/redoc
+)
 - Pydantic-based structured data validation
 - Structured patient data
 - Deterministic triage engine
