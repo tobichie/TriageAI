@@ -760,7 +760,16 @@ OPENAI_API_KEY=your_api_key
 VECTOR_STORE_ID=your_vector_store_id
 ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://<host_ip>:5173
 ```
-If allowed origins are not configured only the localhost will be able to reach the service
+If allowed origins are not configured only the localhost will be able to reach the service.
+
+In addition to that there is a **.env.production** file in the frontend directory.
+It contains:
+```env.production
+VITE_API_URL="http://localhost:8000".
+
+```
+Change localhost to your devices IP, otherwise the frontend will send its API request to the device in use.
+This is fine if you're only using it on local host, but needs to be changed to the host devices IP if you want to use it from within the same network. 
 
 If no vector store ID is configured, the service can continue without
 attaching the vector-store file-search tool.
