@@ -1,5 +1,5 @@
 const API_URL =
-    "http://192.168.178.123:8000"; // This needs to be changed to whatever ip you can reach your device under
+    import.meta.env.VITE_API_URL;
 
 
 export async function assessPatient(

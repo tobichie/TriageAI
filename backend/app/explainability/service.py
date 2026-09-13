@@ -42,6 +42,43 @@ client = OpenAI(
     api_key=api_key
 )
 
+def add_vector_store(
+
+    request_arguments: dict
+
+) -> dict:
+
+    if not VECTOR_STORE_ID:
+
+        return request_arguments
+
+
+    request_arguments[
+        "tools"
+    ] = [
+
+        {
+
+            "type": "file_search",
+
+            "vector_store_ids": [
+
+                str(
+                    VECTOR_STORE_ID
+                )
+
+            ]
+
+        }
+
+    ]
+
+
+
+
+
+    return request_arguments
+
 def validate_ai_assessment(
     result: str
 ) -> dict:
@@ -265,22 +302,24 @@ def generate_explanation(
 
 
     context = (
+
         build_explanation_context(
 
             patient,
 
             triage_result
         )
+
     )
 
 
-    response = client.responses.create(
+    request_arguments = {
 
-        model=MODEL_NAME,
+        "model": MODEL_NAME,
 
-        instructions=SYSTEM_PROMPT,
+        "instructions": SYSTEM_PROMPT,
 
-        input=json.dumps(
+        "input": json.dumps(
 
             context,
 
@@ -288,7 +327,29 @@ def generate_explanation(
 
             default=str
         )
+
+    }
+
+
+    request_arguments = (
+
+        add_vector_store(
+            request_arguments
+        )
+
     )
+
+
+    response = (
+
+        client.responses.create(
+
+            **request_arguments
+
+        )
+
+    )
+
 
     return response.output_text
 
@@ -358,26 +419,13 @@ def generate_ai_assessment(
 
     }
 
+    request_arguments = (
 
-    if VECTOR_STORE_ID:
+        add_vector_store(
+            request_arguments
+        )
 
-        request_arguments[
-            "tools"
-        ] = [
-
-            {
-
-                "type": "file_search",
-
-                "vector_store_ids": [
-                    str(
-                        VECTOR_STORE_ID
-                    )
-                ]
-
-            }
-
-        ]
+    )
 
 
     response = (

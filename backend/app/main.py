@@ -6,10 +6,19 @@ from app.api.routes.triage import (
     router as triage_router
 )
 
-from fastapi import FastAPI
+import os
 
+from fastapi import FastAPI
 from fastapi.middleware.cors import (
     CORSMiddleware
+)
+
+
+allowed_origins = (
+    os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost:5173"
+    ).split(",")
 )
 
 
@@ -26,18 +35,7 @@ app.add_middleware(
 
     CORSMiddleware,
 
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://192.168.178.113:5173",
-        "http://192.168.178.123:5173",
-        '''
-        Enter your hosts ip in here otherwise it only works 
-        from localhost and the others names above.
-        
-        My Ser
-        '''
-    ],
+    allow_origins=allowed_origins,
 
     allow_credentials=True,
 
