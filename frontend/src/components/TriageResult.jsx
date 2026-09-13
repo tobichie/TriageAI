@@ -4,6 +4,16 @@ function TriageResult(
     }
 ) {
 
+    const triageColor =
+        result.color || "gray";
+
+
+    const textColor =
+        result.suggested_group === 3
+            ? "black"
+            : "white";
+
+
     return (
 
         <section
@@ -21,6 +31,15 @@ function TriageResult(
 
                 <div
                     className="triage-group"
+                    style={{
+
+                        backgroundColor:
+                            triageColor,
+
+                        color:
+                            textColor
+
+                    }}
                 >
 
                     <span>
