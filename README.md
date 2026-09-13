@@ -167,7 +167,7 @@ This can (I'm not doing it) be changed so that the **Engine Assessment is displa
 
 ---
 
-## Known Vulnerabilities## Known Vulnerabilities
+## Known Vulnerabilities
 
 ### Prompt Engineering
 
@@ -758,9 +758,9 @@ Example:
 ``` env
 OPENAI_API_KEY=your_api_key
 VECTOR_STORE_ID=your_vector_store_id
+ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://<host_ip>:5173
 ```
-
-The vector store can be configured through `VECTOR_STORE_ID`.
+If allowed origins are not configured only the localhost will be able to reach the service
 
 If no vector store ID is configured, the service can continue without
 attaching the vector-store file-search tool.
