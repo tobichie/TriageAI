@@ -1,926 +1,396 @@
-import {
+import { useState } from "react";
 
-    useState
+const COMMON_COMPLAINTS = [
+    "Chest pain",
+    "Shortness of breath",
+    "Abdominal pain",
+    "Headache",
+    "Fever",
+    "Dizziness",
+    "Bleeding",
+    "Injury / trauma",
+    "Fall",
+    "Vomiting",
+    "Back pain",
+    "Unconscious",
+];
 
-} from "react";
+const SEVERITY_LABELS = [
+    "None",
+    "Minimal",
+    "Mild",
+    "Mild",
+    "Moderate",
+    "Moderate",
+    "Strong",
+    "Strong",
+    "Severe",
+    "Severe",
+    "Worst",
+];
 
-
-function parseSymptoms(
-    symptoms
-) {
-
-    return symptoms.flatMap(
-
-        (symptom) => {
-
-            const symptomNames = (
-
-                symptom.name
-
-                    .split(",")
-
-                    .map(
-
-                        (name) =>
-
-                            name.trim()
-
-                    )
-
-                    .filter(
-
-                        (name) =>
-
-                            name.length > 0
-
-                    )
-
-            );
-
-
-            return symptomNames.map(
-
-                (name) => (
-
-                    {
-
-                        name: name,
-
-
-                        severity:
-
-                            symptom.severity === ""
-
-                                ? null
-
-                                : Number(
-                                    symptom.severity
-                                ),
-
-
-                        duration_minutes:
-
-                            symptom.duration_minutes === ""
-
-                                ? null
-
-                                : Number(
-                                    symptom.duration_minutes
-                                )
-
-                    }
-
-                )
-
-            );
-
-        }
-
-    );
-
+function emptySymptom() {
+    return { name: "", severity: 5, duration_minutes: "" };
 }
 
-function PatientForm(
-    {
-        onSubmit
+function initialSymptoms(initialData) {
+    if (initialData?.symptoms?.length) {
+        return initialData.symptoms.map((s) => ({
+            name: s.name || "",
+            severity: s.severity == null ? 5 : s.severity,
+            duration_minutes:
+                s.duration_minutes == null ? "" : s.duration_minutes,
+        }));
     }
-) {
+    return [emptySymptom()];
+}
 
+function PatientForm({ onSubmit, initialData }) {
+    const vitals = initialData?.vital_signs || {};
 
-    const [
+    const [name, setName] = useState(initialData?.name || "");
+    const [age, setAge] = useState(
+        initialData?.age != null ? String(initialData.age) : ""
+    );
+    const [clinicalContext, setClinicalContext] = useState(
+        initialData?.clinical_context || ""
+    );
+    const [heartRate, setHeartRate] = useState(
+        vitals.heart_rate != null ? String(vitals.heart_rate) : ""
+    );
+    const [oxygenSaturation, setOxygenSaturation] = useState(
+        vitals.oxygen_saturation != null
+            ? String(vitals.oxygen_saturation)
+            : ""
+    );
+    const [systolicBp, setSystolicBp] = useState(
+        vitals.systolic_bp != null ? String(vitals.systolic_bp) : ""
+    );
+    const [diastolicBp, setDiastolicBp] = useState(
+        vitals.diastolic_bp != null ? String(vitals.diastolic_bp) : ""
+    );
+    const [symptoms, setSymptoms] = useState(() =>
+        initialSymptoms(initialData)
+    );
 
-        age,
-
-        setAge
-
-    ] = useState("");
-
-
-    const [
-
-        clinicalContext,
-
-        setClinicalContext
-
-    ] = useState("");
-
-
-    const [
-
-        heartRate,
-
-        setHeartRate
-
-    ] = useState("");
-
-
-    const [
-
-        oxygenSaturation,
-
-        setOxygenSaturation
-
-    ] = useState("");
-
-
-    const [
-
-        systolicBp,
-
-        setSystolicBp
-
-    ] = useState("");
-
-
-    const [
-
-        diastolicBp,
-
-        setDiastolicBp
-
-    ] = useState("");
-
-
-    const [
-
-        symptoms,
-
-        setSymptoms
-
-    ] = useState([
-
-        {
-
-            name: "",
-
-            severity: "",
-
-            duration_minutes: ""
-
-        }
-
-    ]);
-
-
-    function handleSymptomChange(
-
-        index,
-
-        field,
-
-        value
-
-    ) {
-
-        const updatedSymptoms = [
-
-            ...symptoms
-
-        ];
-
-
-        updatedSymptoms[index][field] =
-            value;
-
-
-        setSymptoms(
-            updatedSymptoms
-        );
-
+    function updateSymptom(index, field, value) {
+        setSymptoms((prev) => {
+            const next = [...prev];
+            next[index] = { ...next[index], [field]: value };
+            return next;
+        });
     }
 
-
-    function addSymptom() {
-
-        setSymptoms([
-
-            ...symptoms,
-
-            {
-
-                name: "",
-
-                severity: "",
-
-                duration_minutes: ""
-
+    function addSymptom(prefillName = "") {
+        setSymptoms((prev) => {
+            // Reuse a trailing empty row if present.
+            if (prev.length && prev[prev.length - 1].name.trim() === "") {
+                const next = [...prev];
+                next[next.length - 1] = {
+                    ...next[next.length - 1],
+                    name: prefillName,
+                };
+                return next;
             }
-
-        ]);
-
+            return [...prev, { ...emptySymptom(), name: prefillName }];
+        });
     }
 
-
-    function removeSymptom(
-        index
-    ) {
-
-        const updatedSymptoms =
-            symptoms.filter(
-
-                (
-
-                    _,
-
-                    symptomIndex
-
-                ) =>
-
-                    symptomIndex !== index
-
-            );
-
-
-        setSymptoms(
-            updatedSymptoms
+    function removeSymptom(index) {
+        setSymptoms((prev) =>
+            prev.length === 1
+                ? [emptySymptom()]
+                : prev.filter((_, i) => i !== index)
         );
-
     }
 
+    const selectedNames = new Set(
+        symptoms.map((s) => s.name.trim().toLowerCase())
+    );
 
-    function handleSubmit(
-        event
-    ) {
+    function toNum(value) {
+        return value === "" || value == null ? null : Number(value);
+    }
 
+    function handleSubmit(event) {
         event.preventDefault();
 
+        const cleanedSymptoms = symptoms
+            .filter((s) => s.name.trim() !== "")
+            .map((s) => ({
+                name: s.name.trim(),
+                severity: toNum(s.severity),
+                duration_minutes: toNum(s.duration_minutes),
+            }));
 
-        const patientData = {
-
-
-            age:
-
-                Number(age),
-
-
-            symptoms:
-
-                parseSymptoms(
-
-                    symptoms.filter(
-
-                        (
-                            symptom
-                        ) =>
-
-                            symptom.name.trim() !== ""
-
-                    )
-
-                ),
-
+        onSubmit({
+            name: name.trim() || null,
+            age: toNum(age),
+            symptoms: cleanedSymptoms,
             vital_signs: {
-
-
-                heart_rate:
-
-                    heartRate === ""
-
-                        ? null
-
-                        : Number(
-                            heartRate
-                        ),
-
-
-                oxygen_saturation:
-
-                    oxygenSaturation === ""
-
-                        ? null
-
-                        : Number(
-                            oxygenSaturation
-                        ),
-
-
-                systolic_bp:
-
-                    systolicBp === ""
-
-                        ? null
-
-                        : Number(
-                            systolicBp
-                        ),
-
-
-                diastolic_bp:
-
-                    diastolicBp === ""
-
-                        ? null
-
-                        : Number(
-                            diastolicBp
-                        )
-
+                heart_rate: toNum(heartRate),
+                oxygen_saturation: toNum(oxygenSaturation),
+                systolic_bp: toNum(systolicBp),
+                diastolic_bp: toNum(diastolicBp),
             },
-
-
-            clinical_context:
-
-                clinicalContext || null
-
-        };
-
-
-        onSubmit(
-            patientData
-        );
-
+            clinical_context: clinicalContext.trim() || null,
+        });
     }
 
-
     return (
-
-        <form
-
-            className="patient-form"
-
-            onSubmit={
-                handleSubmit
-            }
-
-        >
-
-
-            {/* ========================== */}
-            {/* FORM HEADER                */}
-            {/* ========================== */}
-
-            <div
-                className="form-header"
-            >
-
-                <h2>
-
-                    Patient Assessment
-
-                </h2>
-
-
-                <p>
-
-                    Enter available patient
-                    information.
-
-                </p>
-
+        <form className="card card-pad" onSubmit={handleSubmit}>
+            <div className="card-head">
+                <h2>New patient intake</h2>
+                <p>Capture what you see. Every field is optional — assess with what you have.</p>
             </div>
 
-
-            {/* ========================== */}
-            {/* PATIENT INFORMATION        */}
-            {/* ========================== */}
-
-            <div
-                className="form-section"
-            >
-
-                <div
-                    className="form-section-title"
-                >
-
-                    Patient Information
-
+            {/* PATIENT ------------------------------------------------ */}
+            <div className="form-section">
+                <div className="section-label">
+                    <span className="num">1</span> Patient
                 </div>
-
-
-                <div
-                    className="form-group"
-                >
-
-                    <label>
-
-                        Age
-
-                    </label>
-
-
-                    <input
-
-                        type="number"
-
-                        placeholder="Age"
-
-                        min="0"
-
-                        value={age}
-
-                        onChange={
-
-                            (
-                                event
-                            ) =>
-
-                                setAge(
-                                    event.target.value
-                                )
-
-                        }
-
-                        required
-
-                    />
-
+                <div className="field-row">
+                    <div className="field">
+                        <label>Name / identifier</label>
+                        <input
+                            type="text"
+                            placeholder="e.g. Anna Becker or Bed 4"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                    </div>
+                    <div className="field">
+                        <label>Age</label>
+                        <div className="input-suffix">
+                            <input
+                                type="number"
+                                placeholder="Years"
+                                min="0"
+                                max="130"
+                                value={age}
+                                onChange={(e) => setAge(e.target.value)}
+                            />
+                            <span>yrs</span>
+                        </div>
+                    </div>
                 </div>
-
             </div>
 
-
-            {/* ========================== */}
-            {/* SYMPTOMS                   */}
-            {/* ========================== */}
-
-            <div
-                className="form-section"
-            >
-
-                <div
-                    className="form-section-title"
-                >
-
-                    Symptoms
-
+            {/* SYMPTOMS ----------------------------------------------- */}
+            <div className="form-section">
+                <div className="section-label">
+                    <span className="num">2</span> Presenting complaint
                 </div>
 
-
-                {
-
-                    symptoms.map(
-
-                        (
-
-                            symptom,
-
-                            index
-
-                        ) => (
-
-                            <div
-
-                                className="symptom-card"
-
-                                key={index}
-
-                            >
-
-
-                                <div
-                                    className="form-group"
-                                >
-
-                                    <label>
-
-                                        Symptom
-
-                                    </label>
-
-
-                                    <input
-
-                                        type="text"
-
-                                        placeholder="e.g. chest pain"
-
-                                        value={
-                                            symptom.name
-                                        }
-
-                                        onChange={
-
-                                            (
-                                                event
-                                            ) =>
-
-                                                handleSymptomChange(
-
-                                                    index,
-
-                                                    "name",
-
-                                                    event.target.value
-
-                                                )
-
-                                        }
-
-                                    />
-
-                                </div>
-
-
-                                <div
-                                    className="form-row"
-                                >
-
-
-                                    <div
-                                        className="form-group"
-                                    >
-
-                                        <label>
-
-                                            Severity
-
-                                        </label>
-
-
-                                        <input
-
-                                            type="number"
-
-                                            placeholder="1–10"
-
-                                            min="1"
-
-                                            max="10"
-
-                                            value={
-                                                symptom.severity
-                                            }
-
-                                            onChange={
-
-                                                (
-                                                    event
-                                                ) =>
-
-                                                    handleSymptomChange(
-
-                                                        index,
-
-                                                        "severity",
-
-                                                        event.target.value
-
-                                                    )
-
-                                            }
-
-                                        />
-
-                                    </div>
-
-
-                                    <div
-                                        className="form-group"
-                                    >
-
-                                        <label>
-
-                                            Duration
-
-                                        </label>
-
-
-                                        <input
-
-                                            type="number"
-
-                                            placeholder="Minutes"
-
-                                            min="0"
-
-                                            value={
-
-                                                symptom
-                                                    .duration_minutes
-
-                                            }
-
-                                            onChange={
-
-                                                (
-                                                    event
-                                                ) =>
-
-                                                    handleSymptomChange(
-
-                                                        index,
-
-                                                        "duration_minutes",
-
-                                                        event.target.value
-
-                                                    )
-
-                                            }
-
-                                        />
-
-                                    </div>
-
-
-                                </div>
-
-
-                                {
-
-                                    symptoms.length > 1 && (
-
-                                        <button
-
-                                            className="remove-symptom-button"
-
-                                            type="button"
-
-                                            onClick={
-
-                                                () =>
-
-                                                    removeSymptom(
-                                                        index
-                                                    )
-
-                                            }
-
-                                        >
-
-                                            Remove symptom
-
-                                        </button>
-
+                <div className="field" style={{ marginBottom: 16 }}>
+                    <span className="field-label">Quick add</span>
+                    <div className="chips">
+                        {COMMON_COMPLAINTS.map((complaint) => (
+                            <button
+                                key={complaint}
+                                type="button"
+                                className={
+                                    "chip" +
+                                    (selectedNames.has(
+                                        complaint.toLowerCase()
                                     )
-
+                                        ? " selected"
+                                        : "")
                                 }
+                                onClick={() => addSymptom(complaint)}
+                            >
+                                {complaint}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-
+                {symptoms.map((symptom, index) => (
+                    <div className="symptom-card" key={index}>
+                        <div className="symptom-card-head">
+                            <div className="field">
+                                <label>Symptom</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. chest pain"
+                                    value={symptom.name}
+                                    onChange={(e) =>
+                                        updateSymptom(
+                                            index,
+                                            "name",
+                                            e.target.value
+                                        )
+                                    }
+                                />
                             </div>
+                            <button
+                                type="button"
+                                className="icon-btn"
+                                title="Remove symptom"
+                                onClick={() => removeSymptom(index)}
+                            >
+                                ✕
+                            </button>
+                        </div>
 
-                        )
+                        <div className="slider-field">
+                            <div className="slider-top">
+                                <span className="field-label">
+                                    Pain / severity
+                                </span>
+                                <span className="slider-value">
+                                    {symptom.severity}
+                                    <small>
+                                        {" "}
+                                        / 10 ·{" "}
+                                        {SEVERITY_LABELS[symptom.severity]}
+                                    </small>
+                                </span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="10"
+                                step="1"
+                                value={symptom.severity}
+                                onChange={(e) =>
+                                    updateSymptom(
+                                        index,
+                                        "severity",
+                                        Number(e.target.value)
+                                    )
+                                }
+                            />
+                            <div className="scale-marks">
+                                <span>0</span>
+                                <span>5</span>
+                                <span>10</span>
+                            </div>
+                        </div>
 
-                    )
-
-                }
-
+                        <div className="field" style={{ marginTop: 14 }}>
+                            <label>Duration</label>
+                            <div className="input-suffix">
+                                <input
+                                    type="number"
+                                    placeholder="How long?"
+                                    min="0"
+                                    value={symptom.duration_minutes}
+                                    onChange={(e) =>
+                                        updateSymptom(
+                                            index,
+                                            "duration_minutes",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                                <span>min</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
 
                 <button
-
-                    className="add-symptom-button"
-
                     type="button"
-
-                    onClick={
-                        addSymptom
-                    }
-
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => addSymptom()}
                 >
-
-                    + Add Symptom
-
+                    + Add another symptom
                 </button>
-
-
             </div>
 
-
-            {/* ========================== */}
-            {/* VITAL SIGNS                */}
-            {/* ========================== */}
-
-            <div
-                className="form-section"
-            >
-
-                <div
-                    className="form-section-title"
-                >
-
-                    Vital Signs
-
+            {/* VITALS ------------------------------------------------- */}
+            <div className="form-section">
+                <div className="section-label">
+                    <span className="num">3</span> Vital signs
                 </div>
-
-
-                <div
-                    className="vitals-grid"
-                >
-
-
-                    <div
-                        className="form-group"
-                    >
-
-                        <label>
-
-                            Heart Rate
-                            (BPM)
-
-                        </label>
-
-
-                        <input
-
-                            type="number"
-
-                            placeholder="e.g. 80"
-
-                            value={heartRate}
-
-                            onChange={
-
-                                (
-                                    event
-                                ) =>
-
-                                    setHeartRate(
-                                        event.target.value
-                                    )
-
-                            }
-
-                        />
-
+                <div className="vitals-grid">
+                    <div className="field">
+                        <label>Heart rate</label>
+                        <div className="input-suffix">
+                            <input
+                                type="number"
+                                placeholder="e.g. 80"
+                                value={heartRate}
+                                onChange={(e) =>
+                                    setHeartRate(e.target.value)
+                                }
+                            />
+                            <span>bpm</span>
+                        </div>
                     </div>
-
-
-                    <div
-                        className="form-group"
-                    >
-
-                        <label>
-
-                            Oxygen Saturation
-                            (%)
-
-                        </label>
-
-
-                        <input
-
-                            type="number"
-
-                            placeholder="e.g. 98"
-
-                            value={
-                                oxygenSaturation
-                            }
-
-                            onChange={
-
-                                (
-                                    event
-                                ) =>
-
-                                    setOxygenSaturation(
-                                        event.target.value
-                                    )
-
-                            }
-
-                        />
-
+                    <div className="field">
+                        <label>Oxygen saturation</label>
+                        <div className="input-suffix">
+                            <input
+                                type="number"
+                                placeholder="e.g. 98"
+                                value={oxygenSaturation}
+                                onChange={(e) =>
+                                    setOxygenSaturation(e.target.value)
+                                }
+                            />
+                            <span>%</span>
+                        </div>
                     </div>
-
-
-                    <div
-                        className="form-group"
-                    >
-
-                        <label>
-
-                            Systolic BP
-
-                        </label>
-
-
-                        <input
-
-                            type="number"
-
-                            placeholder="e.g. 120"
-
-                            value={systolicBp}
-
-                            onChange={
-
-                                (
-                                    event
-                                ) =>
-
-                                    setSystolicBp(
-                                        event.target.value
-                                    )
-
-                            }
-
-                        />
-
+                    <div className="field">
+                        <label>Systolic BP</label>
+                        <div className="input-suffix">
+                            <input
+                                type="number"
+                                placeholder="e.g. 120"
+                                value={systolicBp}
+                                onChange={(e) =>
+                                    setSystolicBp(e.target.value)
+                                }
+                            />
+                            <span>mmHg</span>
+                        </div>
                     </div>
-
-
-                    <div
-                        className="form-group"
-                    >
-
-                        <label>
-
-                            Diastolic BP
-
-                        </label>
-
-
-                        <input
-
-                            type="number"
-
-                            placeholder="e.g. 80"
-
-                            value={diastolicBp}
-
-                            onChange={
-
-                                (
-                                    event
-                                ) =>
-
-                                    setDiastolicBp(
-                                        event.target.value
-                                    )
-
-                            }
-
-                        />
-
+                    <div className="field">
+                        <label>Diastolic BP</label>
+                        <div className="input-suffix">
+                            <input
+                                type="number"
+                                placeholder="e.g. 80"
+                                value={diastolicBp}
+                                onChange={(e) =>
+                                    setDiastolicBp(e.target.value)
+                                }
+                            />
+                            <span>mmHg</span>
+                        </div>
                     </div>
-
-
                 </div>
-
             </div>
 
-
-            {/* ========================== */}
-            {/* CLINICAL CONTEXT           */}
-            {/* ========================== */}
-
-            <div
-                className="form-section"
-            >
-
-                <div
-                    className="form-section-title"
-                >
-
-                    Clinical Context
-
+            {/* CONTEXT ------------------------------------------------ */}
+            <div className="form-section">
+                <div className="section-label">
+                    <span className="num">4</span> Clinical context
                 </div>
-
-
-                <div
-                    className="form-group"
-                >
-
+                <div className="field">
                     <textarea
-
-                        placeholder={
-                            "Additional clinical context"
+                        placeholder="History, allergies, observations, anything relevant…"
+                        rows="3"
+                        value={clinicalContext}
+                        onChange={(e) =>
+                            setClinicalContext(e.target.value)
                         }
-
-                        rows="4"
-
-                        value={
-                            clinicalContext
-                        }
-
-                        onChange={
-
-                            (
-                                event
-                            ) =>
-
-                                setClinicalContext(
-                                    event.target.value
-                                )
-
-                        }
-
                     />
-
                 </div>
-
             </div>
 
-
-            <button
-
-                className="assess-button"
-
-                type="submit"
-
-            >
-
-                Assess Patient
-
-            </button>
-
-
+            <div className="submit-bar">
+                <button
+                    type="submit"
+                    className="btn btn-primary btn-lg btn-block"
+                >
+                    Assess patient →
+                </button>
+            </div>
         </form>
-
     );
-
 }
-
 
 export default PatientForm;

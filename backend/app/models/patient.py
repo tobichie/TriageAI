@@ -44,6 +44,11 @@ class Symptom(BaseModel):
 
 class PatientData(BaseModel):
 
+    name: Optional[str] = Field(
+        default=None,
+        max_length=120
+    )
+
     age: Optional[int] = Field(
         default=None,
         ge=0,

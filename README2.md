@@ -91,11 +91,63 @@ This separation makes it possible to:
 
 ------------------------------------------------------------------------
 
-# ✨ Current Features
+# 🆕 What's New in This Build
 
-> 📋 For a full description of everything added on top of the original
-> prototype (persistence, dashboard API, triage board, dark mode, privacy,
-> logic review), see **[CHANGES.md](CHANGES.md)**.
+Everything below was added on top of the original prototype (2026-09).
+
+| Area | Before | Now |
+|------|--------|-----|
+| Persistence | Only raw patient data stored | Full triage result + name + status + timestamps stored per encounter |
+| Patient identity | none | `name` field (stored locally, **never sent to the AI**) |
+| Dashboard API | `GET /patients` only | Full read / update / delete + status + statistics |
+| Frontend | Single assessment screen | Three views: **Assess**, **Board**, **Records** |
+| Nurse input | Number fields only | Pain **sliders**, symptom **quick-pick chips**, name field |
+| Shift overview | none | **Triage board** sorted by urgency with live wait timers |
+| Re-assessment | broken | Works — pre-fills the intake form from a stored patient |
+| Theme | Light only | **Light / dark toggle** (night shift), persisted per device |
+| Reboot safety | containers did not restart | `restart: unless-stopped` on all services |
+| Services | frontend + backend | frontend + backend + **dashboard** + **PostgreSQL** |
+
+## Data Model & Persistence
+
+Previously the `/triage` endpoint stored only raw patient data and the triage
+*result* was thrown away, so no overview or board was possible. Now every
+assessment persists the **complete encounter** in the `patients` table
+([backend/db/db.py](backend/db/db.py)):
+
+``` text
+patients
+├── id
+├── name                    ← NEW (identifier, never sent to the AI)
+├── age
+├── symptoms (JSON)
+├── vital_signs (JSON)
+├── clinical_context
+├── triage_group            ← NEW (1–5, deterministic result)
+├── treatment_priority      ← NEW
+├── color                   ← NEW (Manchester colour)
+├── max_wait_minutes        ← NEW
+├── reevaluation_minutes    ← NEW
+├── red_flags (JSON)        ← NEW
+├── relevant_factors (JSON) ← NEW
+├── requires_human_review   ← NEW
+├── triage_result (JSON)    ← NEW (full result for the detail view)
+├── ai_severity             ← NEW (independent AI priority)
+├── ai_reason               ← NEW
+├── ai_explanation          ← NEW
+├── status                  ← NEW (waiting | in_treatment | done)
+├── created_at              ← NEW
+└── updated_at              ← NEW
+```
+
+`initialize_database()` runs on backend startup and is **idempotent**: it
+creates the table if needed and adds any missing columns in place
+(`ALTER TABLE ... ADD COLUMN IF NOT EXISTS`), so an existing database is
+upgraded without losing data.
+
+------------------------------------------------------------------------
+
+# ✨ Current Features
 
 ## Workflow & Dashboard
 
@@ -697,7 +749,8 @@ DELETE /patients/{id}                Delete a record
 GET    /stats                        Counts: total, waiting, in_treatment, done, by group
 ```
 
-See **[CHANGES.md](CHANGES.md)** for full details.
+Board ordering: `triage_group` ascending (1 = most urgent, NULLs last), then
+`created_at` ascending (longest wait first).
 
 ------------------------------------------------------------------------
 
@@ -729,7 +782,18 @@ TriageAI
     └── Re-assess (pre-fills the intake form)
 ```
 
-See **[CHANGES.md](CHANGES.md)** for the component-level details.
+Shared priority/formatting logic lives in
+[frontend/src/triage.js](frontend/src/triage.js). Re-assess (from Board or
+Records) loads the stored patient data back into the intake form and switches to
+the Assess view; submitting produces a fresh assessment through `/triage`.
+
+### 🌙 Dark mode
+
+A light/dark toggle in the top bar ([App.jsx](frontend/src/App.jsx)) for night
+shifts. The choice is stored per device (`localStorage`) and defaults to the
+operating-system preference. Priority colours stay vivid in both themes.
+Implemented as an accessible `role="switch"`; dark tokens live in
+[frontend/src/index.css](frontend/src/index.css).
 
 ------------------------------------------------------------------------
 
@@ -791,18 +855,44 @@ DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres
 ```
 If allowed origins are not configured only the localhost will be able to reach the service.
 
-In addition to that there is a **.env.production** file in the frontend directory.
-It contains:
-```env.production
-VITE_API_URL=/api
-```
-This is a relative path, so the frontend sends API requests to the same origin
-it is served from. Behind the domain, nginx proxies `/api` and `/dashboard-api`
-to the backend and dashboard containers; the Vite dev server does the same via
-proxies in `vite.config.js`, so no host IP needs to be hard-coded anymore.
-
 If no vector store ID is configured, the service can continue without
 attaching the vector-store file-search tool.
+
+### API URL configuration
+
+The frontend reaches the backend and dashboard through two base URLs, both of
+which default to a **relative path**:
+
+| Variable | Default | Used by |
+|----------|---------|---------|
+| `VITE_API_URL` | `/api` | Main API (`POST /triage`) |
+| `VITE_DASHBOARD_API_URL` | `/dashboard-api` | Dashboard API (records, board, stats) |
+
+**Recommended (default): relative path behind a reverse proxy.**
+Relative URLs are same-origin, so requests are routed by a proxy that sits in
+front of the app, and no host IP is ever hard-coded:
+
+- **Production (domain):** nginx proxies `/api/` → `backend:8000` and
+  `/dashboard-api/` → `dashboard:8001` (the trailing slash strips the prefix).
+- **Direct dev server (`http://<host-ip>:5173`):** the same routing is done by
+  the proxies defined in `frontend/vite.config.js`.
+
+Because everything is same-origin, this needs **no CORS configuration** and the
+HTTP Basic-Auth login is sent with every request automatically. This is the
+intended setup and works as-is — nothing needs to be changed per host.
+
+**Optional override: absolute URL (bypass the proxy).**
+If you ever want the frontend to talk to the backend directly (no proxy), set
+absolute URLs in `frontend/.env.production` and rebuild the frontend:
+
+```env.production
+VITE_API_URL=http://<host-ip>:8000
+VITE_DASHBOARD_API_URL=http://<host-ip>:8001
+```
+
+In this mode the request is cross-origin, so you must add the frontend origin to
+`ALLOWED_ORIGINS` (CORS), and Basic Auth on `/api` no longer applies
+automatically. Prefer the relative default unless you have a specific reason.
 
 > Never commit API keys or secrets to Git.
 
@@ -997,8 +1087,7 @@ presentation.
 Absence of a deterministic finding does not mean that a patient
 presentation is clinically insignificant.
 
-A logic review (2026-09) documented specific sharp edges — see the
-"Logic evaluation" section in **[CHANGES.md](CHANGES.md)**:
+A logic review (2026-09) documented these specific sharp edges:
 
 -   **Unmatched input defaults to group 5 (Not Urgent).** If no rule fires, the
     engine returns the least-urgent group. Example: `"face drooping, slurred
@@ -1075,6 +1164,41 @@ The deterministic engine should remain:
 
 AI and retrieved knowledge should remain clearly separated from
 deterministic evidence.
+
+------------------------------------------------------------------------
+
+# 🗂️ New & Changed Files (2026-09 build)
+
+``` text
+backend/
+  app/models/patient.py            edited   + name field
+  app/models/triage_response.py    edited   + patient_id
+  app/api/routes/triage.py         edited   store full assessment
+  db/db.py                         rewritten schema, migration, CRUD, stats
+  tests/test_privacy.py            new      name-not-sent-to-AI guard
+dashboard/
+  main.py                          rewritten full CRUD + status + stats
+frontend/
+  src/triage.js                    new      shared priority helpers
+  src/App.jsx                      rewritten 3 views + dark-mode toggle
+  src/App.css                      rewritten design system
+  src/index.css                    edited   tokens + dark theme + toggle
+  src/services/dashboardApi.js     rewritten stats + status + CRUD
+  src/components/PatientForm.jsx   rewritten sliders + chips + name
+  src/components/AssessmentResult.jsx  new  combined result panel
+  src/components/Board.jsx         new      triage board
+  src/components/Records.jsx       new      admin/records
+  src/components/{Dashboard,TriageResult,AIAssessment,
+    AIExplanation,AssessmentComparison}.jsx  removed (replaced)
+  vite.config.js                   edited   dev proxies
+docker-compose.yml                 edited   +dashboard/postgres, restart, volume
+```
+
+Run the privacy regression tests:
+
+``` bash
+docker compose exec backend python -m pytest tests/test_privacy.py -v
+```
 
 ------------------------------------------------------------------------
 

@@ -13,6 +13,13 @@ from fastapi.middleware.cors import (
     CORSMiddleware
 )
 
+from db.db import initialize_database
+
+database_url = os.getenv("DATABASE_URL")
+postgres_db = os.getenv("POSTGRES_DB")
+postgres_user = os.getenv("POSTGRES_USER")
+postgres_password = os.getenv("POSTGRES_PASSWORD")
+
 
 allowed_origins = (
     os.getenv(
@@ -52,6 +59,11 @@ app.include_router(
 app.include_router(
     triage_router
 )
+
+@app.on_event("startup")
+def startup():
+    initialize_database()
+
 
 
 @app.get("/")

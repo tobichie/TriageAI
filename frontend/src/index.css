@@ -1,171 +1,220 @@
 :root {
+    /* Neutrals ----------------------------------------------------- */
+    --bg: #eef1f6;
+    --surface: #ffffff;
+    --surface-2: #f7f9fc;
+    --surface-3: #eef2f7;
+    --border: #dfe4ec;
+    --border-strong: #c8d0dd;
 
-    --background:
-        #111318;
+    --text: #0f172a;
+    --text-2: #475569;
+    --text-3: #7c889b;
 
-    --surface:
-        #191c23;
+    /* Brand -------------------------------------------------------- */
+    --brand: #0d9488;
+    --brand-strong: #0f766e;
+    --brand-soft: #d5f0ec;
+    --brand-ink: #0b5f57;
 
-    --surface-light:
-        #20242d;
+    /* Priority (Manchester 5-level) ------------------------------- */
+    --p-red: #dc2626;
+    --p-red-soft: #fdecec;
+    --p-orange: #ea580c;
+    --p-orange-soft: #fdeee3;
+    --p-yellow: #d97706;
+    --p-yellow-soft: #fdf3e2;
+    --p-green: #16a34a;
+    --p-green-soft: #e6f6ec;
+    --p-blue: #2563eb;
+    --p-blue-soft: #e7effd;
+    --p-none: #94a3b8;
+    --p-none-soft: #eef1f6;
 
-    --surface-hover:
-        #272c36;
+    /* Status ------------------------------------------------------- */
+    --danger: #dc2626;
+    --danger-soft: #fdecec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --ok: #16a34a;
 
-    --border:
-        #303642;
+    /* Radius / shadow --------------------------------------------- */
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 18px;
+    --r-xl: 24px;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 18px 44px rgba(15, 23, 42, 0.14);
 
-    --text-primary:
-        #f1f5f9;
-
-    --text-secondary:
-        #a7b0bf;
-
-    --text-muted:
-        #737d8c;
-
-    --primary:
-        #3b82f6;
-
-    --primary-hover:
-        #2563eb;
-
-    --success:
-        #22c55e;
-
-    --warning:
-        #f59e0b;
-
-    --danger:
-        #ef4444;
-
-
-    font-family:
-
-        Inter,
-
-        system-ui,
-
-        -apple-system,
-
-        BlinkMacSystemFont,
-
-        "Segoe UI",
-
-        sans-serif;
-
-
-    color:
-
-        var(--text-primary);
-
-
-    background:
-
-        var(--background);
-
-
-    font-synthesis:
-
-        none;
-
-
-    text-rendering:
-
-        optimizeLegibility;
-
-
-    -webkit-font-smoothing:
-
-        antialiased;
-
-
-    -moz-osx-font-smoothing:
-
-        grayscale;
-
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark theme (night shift) ---------------------------------------- */
+:root[data-theme="dark"] {
+    --bg: #0f141f;
+    --surface: #161d2b;
+    --surface-2: #1b2434;
+    --surface-3: #232d40;
+    --border: #2a3547;
+    --border-strong: #3b4863;
+
+    --text: #eaf0f8;
+    --text-2: #a7b4c8;
+    --text-3: #7a889f;
+
+    --brand: #14b8a6;
+    --brand-strong: #0d9488;
+    --brand-soft: #123f3b;
+    --brand-ink: #6fe0d2;
+
+    --p-red: #f05252;
+    --p-red-soft: #3a1c1c;
+    --p-orange: #fb8138;
+    --p-orange-soft: #3a271a;
+    --p-yellow: #f0a020;
+    --p-yellow-soft: #392c16;
+    --p-green: #2bbb5c;
+    --p-green-soft: #16301f;
+    --p-blue: #4b8bf5;
+    --p-blue-soft: #182740;
+    --p-none: #94a3b8;
+    --p-none-soft: #232d40;
+
+    --danger: #f47171;
+    --danger-soft: #3a1c1c;
+    --warn: #f5b53a;
+    --warn-soft: #392c16;
+    --ok: #2bbb5c;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.55);
+
+    color-scheme: dark;
+}
+
+/* Dark overrides for surfaces that use literal colours ------------- */
+:root[data-theme="dark"] .topbar {
+    background: rgba(18, 24, 36, 0.9);
+}
+
+:root[data-theme="dark"] .redflag {
+    background: var(--surface);
+    border-color: #5b2b2b;
+    color: #fca5a5;
+}
+
+:root[data-theme="dark"] .agreement.match {
+    color: #86efac;
+}
+
+:root[data-theme="dark"] .pill-done {
+    color: #86efac;
+}
+
+:root[data-theme="dark"] .error-banner {
+    border-color: #5b2b2b;
+}
 
 * {
-
-    box-sizing:
-
-        border-box;
-
+    box-sizing: border-box;
 }
 
+/* Theme toggle ---------------------------------------------------- */
+.theme-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 58px;
+    height: 30px;
+    padding: 3px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface-3);
+    transition: background 0.18s ease;
+    flex: none;
+}
+
+.theme-toggle .knob {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    display: grid;
+    place-items: center;
+    color: #d97706;
+    transform: translateX(0);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.theme-toggle .knob svg {
+    width: 15px;
+    height: 15px;
+}
+
+:root[data-theme="dark"] .theme-toggle .knob {
+    transform: translateX(28px);
+    color: var(--brand-ink);
+}
 
 html {
-
-    width:
-
-        100%;
-
-    min-height:
-
-        100%;
-
+    width: 100%;
+    min-height: 100%;
 }
-
 
 body {
-
-    margin:
-
-        0;
-
-    width:
-
-        100%;
-
-    min-width:
-
-        320px;
-
-    min-height:
-
-        100vh;
-
-    background:
-
-        var(--background);
-
+    margin: 0;
+    width: 100%;
+    min-width: 320px;
+    min-height: 100vh;
+    background: var(--bg);
 }
-
 
 button,
-
 input,
-
 textarea,
-
 select {
-
-    font:
-
-        inherit;
-
+    font: inherit;
+    color: inherit;
 }
-
 
 button {
-
-    cursor:
-
-        pointer;
-
+    cursor: pointer;
 }
 
+h1,
+h2,
+h3,
+h4 {
+    margin: 0;
+    line-height: 1.2;
+}
+
+p {
+    margin: 0;
+}
 
 #root {
+    width: 100%;
+    min-height: 100vh;
+}
 
-    width:
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
 
-        100%;
-
-    min-height:
-
-        100vh;
-
+::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 999px;
+    border: 2px solid var(--bg);
 }

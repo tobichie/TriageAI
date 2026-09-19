@@ -20,6 +20,9 @@ class TriageResponse(
     BaseModel):
 
 
+    patient_id: int | None = None
+
+
     triage_result: TriageResult
 
 
