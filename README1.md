@@ -153,6 +153,205 @@ The provider, model, authentication and retrieval configuration are implementati
 
 ---
 
+## 🗒️ Note 
+
+Where supported by the configured AI provider, repeated structured requests may benefit from prompt caching, reducing repeated processing and potentially improving response latency.
+![cache_hits.png](demo/cache_hits.png)
+
+## Performance Improvement
+
+The frontend currently waits for both the **AI Assessment** and the **Engine Assessment** to complete before displaying any results. This unnecessarily increases the perceived duration of the triage process.
+
+This can (I'm not doing it) be changed so that the **Engine Assessment is displayed immediately once it is available**, while the AI Assessment continues processing in the background.
+
+---
+
+## Known Vulnerabilities
+
+### Prompt Engineering
+
+The prompts defined in `backend/app/explainability/prompts.py` are currently not hardened against prompt injection or other prompt-engineering techniques.
+
+This could potentially allow users to manipulate the model into generating responses unrelated to the intended triage process. Prompt hardening, stricter input handling, and clear model instructions should be implemented to reduce this risk.
+
+### Clinical Context Overload
+
+The **Clinical Context** field currently accepts an unrestricted number of characters. This allows users to submit excessively large amounts of text, which can unnecessarily increase token consumption and processing time.
+
+A maximum input length should be introduced to prevent excessive token usage and ensure consistent performance. Additional validation or truncation mechanisms may also be considered.
+
+---
+# 🚀 Quick Start
+
+## Prerequisites
+
+You need:
+
+-   Docker Desktop
+-   Git
+-   The required AI service credentials
+
+Make sure Docker Desktop is running before starting the project.
+
+## 1. Clone the Repository
+
+``` bash
+git clone https://github.com/tobichie/TriageAI.git
+cd TriageAI/TriageAI OR TriageFeatherless
+```
+
+## 2. Configure Environment Variables
+
+Create a `.env` file in the project root.
+
+Example:
+
+``` env
+FEATHERLESS_KEY=your_api_key OR OPENAI_API_KEY=your_api_key
+ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://<host_ip>:5173
+
+# PostgreSQL (used by backend + dashboard)
+POSTGRES_DB=triageai
+POSTGRES_USER=triageai
+POSTGRES_PASSWORD=change_me
+DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+```
+If allowed origins are not configured only the localhost will be able to reach the service.
+
+If no vector store ID is configured, the service can continue without
+attaching the vector-store file-search tool.
+
+### API URL configuration
+
+The frontend reaches the backend and dashboard through two base URLs, both of
+which default to a **relative path**:
+
+| Variable | Default | Used by |
+|----------|---------|---------|
+| `VITE_API_URL` | `/api` | Main API (`POST /triage`) |
+| `VITE_DASHBOARD_API_URL` | `/dashboard-api` | Dashboard API (records, board, stats) |
+
+**Recommended (default): relative paths.**
+The frontend uses relative API URLs so requests stay on the same origin:
+
+- `VITE_API_URL=/api`
+- `VITE_DASHBOARD_API_URL=/dashboard-api`
+
+In the current hosted setup, the nginx reverse proxy maps the site's
+`/api/` path to the backend service on port `8000` and `/dashboard-api/` to the
+dashboard API on port `8001`. This is why the frontend can use relative paths
+instead of hard-coding backend hostnames or ports.
+
+For direct local development, the equivalent path routing is provided by the
+Vite proxies defined in `frontend/vite.config.js`.
+
+Because the API paths are same-origin in the hosted setup, the browser sends
+requests to the same domain as the frontend.
+
+**Optional override: absolute URL (bypass the proxy).**
+If you ever want the frontend to talk to the backend directly (no proxy), set
+absolute URLs in `frontend/.env` and rebuild the frontend:
+
+```env
+VITE_API_URL=/api
+VITE_DASHBOARD_API_URL=/dashboard-api
+ALLOWED_ORIGINS=<yourdomain/ip+port>
+```
+
+In this mode the request is cross-origin, so you must add the frontend origin to
+`ALLOWED_ORIGINS` (CORS), and Basic Auth on `/api` no longer applies
+automatically. Prefer the relative default unless you have a specific reason.
+
+> Never commit API keys or secrets to Git.
+
+## 3. Build and Start TriageAI
+
+From either the TriageAI or TriageFeatherless directory depending on which is in use:
+
+``` bash
+docker compose up -d --build
+```
+
+## 4. Check the Containers
+
+``` bash
+docker compose ps
+```
+
+## 5. Open the Application
+
+Frontend:
+
+``` text
+http://localhost:5173
+```
+
+Backend API:
+
+``` text
+http://localhost:8000
+```
+
+Swagger UI:
+
+``` text
+http://localhost:8000/docs
+```
+
+ReDoc:
+
+``` text
+http://localhost:8000/redoc
+```
+
+------------------------------------------------------------------------
+
+# 🛑 Stopping TriageAI
+
+``` bash
+docker compose down
+```
+
+------------------------------------------------------------------------
+
+# 🔄 Rebuilding After Changes
+
+When source files or Docker configuration have changed:
+
+``` bash
+docker compose up -d --build
+```
+
+------------------------------------------------------------------------
+
+# 📜 Viewing Logs
+
+View logs:
+
+``` bash
+docker compose logs
+```
+
+Follow logs:
+
+``` bash
+docker compose logs -f
+```
+
+View backend logs:
+
+``` bash
+docker compose logs -f backend
+```
+
+View frontend logs:
+
+``` bash
+docker compose logs -f frontend
+```
+
+------------------------------------------------------------------------
+
 # 🔄 How an Assessment Works
 
 ```text

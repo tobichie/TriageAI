@@ -108,7 +108,7 @@ Never commit API keys or other secrets to Git.
 
 # 📦 Running the OpenAI Build
 
-From the repository root:
+From the TriageAIFeatherless folder:
 
 ```bash
 docker compose up -d --build

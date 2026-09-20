@@ -27,6 +27,12 @@ The deterministic engine remains authoritative for the deterministic triage grou
 
 > **The Featherless model cannot override the deterministic triage result.**
 
+## Problem
+
+Unfortunately many of the larger models are very in demand which leads to low availability which causes the assessment to fail.
+If it keeps failing, switch the model to one such as "Qwen/Qwen2.5-7B-Instruct" or any other that suits you and is available.
+
+
 ---
 
 # 🧠 Medical Reasoning Model
