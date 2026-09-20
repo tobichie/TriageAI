@@ -27,7 +27,7 @@ FEATHERLESS_KEY = os.getenv(
 )
 
 MODEL_NAME = (
-    "Qwen/Qwen2.5-7B-Instruct"
+    "EpistemeAI/Reasoning-Medical0.1-27B"
 )
 
 FEATHERLESS_URL = (
@@ -225,12 +225,17 @@ def validate_ai_assessment(
         2,
         3,
         4,
-        5
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
     }:
 
         raise ValueError(
             "'severity' must be "
-            "between 1 and 5."
+            "between 1 and 10."
         )
 
 
