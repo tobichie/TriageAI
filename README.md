@@ -78,8 +78,8 @@ This separation makes it possible to:
 - Keep supplementary retrieved information separate from deterministic evidence
 
 The exact AI provider and model are implementation-specific. See:
-- [Featherless implementation](TriageFeatherless/README-FEATHERLESS.md)
-- [OpenAI implementation](TriageAI/README-OPENAI.md)
+- [Featherless implementation](TriageFeatherless/README.md)
+- [OpenAI implementation](TriageAI/README.md)
 
 ---
 
