@@ -156,7 +156,7 @@ The provider, model, authentication and retrieval configuration are implementati
 ## 🗒️ Note 
 
 Where supported by the configured AI provider, repeated structured requests may benefit from prompt caching, reducing repeated processing and potentially improving response latency.
-![cache_hits.png](demo/cache_hits.png)
+![cache_hits.png](TriageAI/demo/cache_hits.png)
 
 ## Performance Improvement
 
