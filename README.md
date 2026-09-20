@@ -248,14 +248,18 @@ Vite proxies defined in `frontend/vite.config.js`.
 Because the API paths are same-origin in the hosted setup, the browser sends
 requests to the same domain as the frontend.
 
-**Optional override: absolute URL (bypass the proxy).**
-If you ever want the frontend to talk to the backend directly (no proxy), set
-absolute URLs in `frontend/.env` and rebuild the frontend:
-
+Direct connection: bypass the proxy. If you want the frontend to communicate directly with the backend and dashboard without going through the reverse proxy, set absolute URLs in frontend/.env and rebuild the frontend:
 ```env
-VITE_API_URL=/api
-VITE_DASHBOARD_API_URL=/dashboard-api
-ALLOWED_ORIGINS=<yourdomain/ip+port>
+VITE_API_URL=http://<your-ip>:8000
+VITE_DASHBOARD_API_URL=http://<your-ip>:8001
+ALLOWED_ORIGINS=http://<your-ip>:5173
+```
+
+For example:
+```env
+VITE_API_URL=http://192.168.178.123:8000
+VITE_DASHBOARD_API_URL=http://192.168.178.123:8001
+ALLOWED_ORIGINS=http://192.168.178.123:5173
 ```
 
 In this mode the request is cross-origin, so you must add the frontend origin to
